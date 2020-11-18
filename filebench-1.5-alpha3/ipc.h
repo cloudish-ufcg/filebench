@@ -114,7 +114,7 @@ typedef struct filebench_shm {
 	flowop_t	*shm_flowoplist;
 	pthread_mutex_t shm_flowop_lock;
 
-	char all_latencies[150000][128];
+	char all_latencies[700000][128];
 
 	/*
 	 * parallel file allocation  control. Restricts number of spawned
