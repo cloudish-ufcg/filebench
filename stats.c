@@ -35,6 +35,7 @@
 #include "vars.h"
 #include "stats.h"
 #include "fbtime.h"
+#include <string.h>
 
 /*
  * A set of routines for collecting and dumping various filebench
@@ -79,6 +80,20 @@ stats_add(struct flowstats *a, struct flowstats *b)
  * to the log file followed by the global totals. Then filebench
  * operation is allowed to resume.
  */
+
+char all_op[10000][256];
+
+void addMetrics(int id, char* line){
+	strcpy(all_op[id], line);
+	printf("[CLOUDISH] %d,%s\n", id, all_op[id]);
+
+	if (id == 1){
+		printf("ADD METRICS %ld\n", (long)getpid());
+	}
+	
+}
+
+
 void
 stats_snap(void)
 {
@@ -122,7 +137,10 @@ stats_snap(void)
 
 	/* Similarly we blank the master flowop statistics */
 	flowop = filebench_shm->shm_flowoplist;
+
 	while (flowop) {
+		
+
 		if (flowop->fo_instance == FLOW_MASTER) {
 			(void) memset(&flowop->fo_stats, 0, sizeof(struct flowstats));
 			flowop->fo_stats.fs_minlat = ULLONG_MAX;
@@ -133,6 +151,7 @@ stats_snap(void)
 	/* Roll up per-flowop statistics in globalstats and master flowops */
 	flowop = filebench_shm->shm_flowoplist;
 	while (flowop) {
+
 		flowop_t *flowop_master;
 
 		if (flowop->fo_instance <= FLOW_DEFINITION) {
@@ -165,6 +184,7 @@ stats_snap(void)
 		    flowop->fo_stats.fs_count ?
 		    flowop->fo_stats.fs_total_lat /
 		    (flowop->fo_stats.fs_count * SEC2MS_FLOAT) : 0);
+		
 
 		flowop = flowop->fo_next;
 
@@ -235,7 +255,16 @@ stats_snap(void)
 	    iostat->fs_total_lat /
 	    ((iostat->fs_rcount + iostat->fs_wcount) * SEC2MS_FLOAT) : 0);
 
+	
+	for (int i = 1; i <= iostat->fs_count + aiostat->fs_count; i++)
+	{
+		printf("[CLOUDISH] %s\n",filebench_shm->all_latencies[i]);
+	}
+
+	
+
 	filebench_shm->shm_bequiet = 0;
+	
 }
 
 /*

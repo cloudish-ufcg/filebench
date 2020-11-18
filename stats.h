@@ -57,10 +57,17 @@ struct flowstats {
 	hrtime_t	fs_etime;
 };
 
+
+extern char all_op[10000][256];
+void addMetrics(int id, char* line);
+
 #define	IS_FLOW_IOP(x) (x->fo_stats.fs_rcount + x->fo_stats.fs_wcount)
 #define	STAT_IOPS(x)   ((x->fs_rcount) + (x->fs_wcount))
 #define	IS_FLOW_ACTIVE(x) (x->fo_stats.fs_count)
 #define	STAT_CPUTIME(x) (x->fs_cpu_op)
 #define	STAT_OHEADTIME(x) (x->fs_cpu_ohead)
+
+
+
 
 #endif	/* _FB_STATS_H */

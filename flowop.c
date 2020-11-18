@@ -33,6 +33,7 @@
 #include "flowop.h"
 #include "stats.h"
 #include "ioprio.h"
+#include <string.h>
 
 static flowop_t *flowop_define_common(threadflow_t *threadflow, char *name,
     flowop_t *inherit, flowop_t **flowoplist_hdp, int instance, int type);
@@ -144,6 +145,7 @@ flowop_beginop(threadflow_t *threadflow, flowop_t *flowop)
 struct flowstats controlstats;
 pthread_mutex_t controlstats_lock;
 static int controlstats_zeroed = 0;
+int myGlobal = 5;
 
 static void
 flowop_populate_distribution(flowop_t *flowop,  unsigned long long ll_delay)
@@ -181,6 +183,7 @@ flowop_endop(threadflow_t *threadflow, flowop_t *flowop, int64_t bytes)
 	if (ll_delay > flowop->fo_stats.fs_maxlat)
 		flowop->fo_stats.fs_maxlat = ll_delay;
 
+
 	flowop->fo_stats.fs_total_lat += ll_delay;
 	flowop->fo_stats.fs_count++;
 	flowop->fo_stats.fs_bytes += bytes;
@@ -189,6 +192,27 @@ flowop_endop(threadflow_t *threadflow, flowop_t *flowop, int64_t bytes)
 	    (flowop->fo_type & FLOW_TYPE_AIO)) {
 		controlstats.fs_count++;
 		controlstats.fs_bytes += bytes;
+
+		char line[128];
+		snprintf(line, sizeof(line), "%s,%d,%d,%llu,%lu", 
+			flowop->fo_name,
+			threadflow->tf_instance,
+			threadflow->tf_process->pf_instance,
+			ll_delay,
+			gethrtime());
+		
+		filebench_shm->total++;
+		strcpy(filebench_shm->all_latencies[controlstats.fs_count], line);
+
+		/*strcpy(flowop->all_op_lat[flowop->fo_stats.fs_count], line);*/
+
+		/*all_op[controlstats.fs_count] = line;*/
+		/*printf("%d\n", controlstats.fs_count);*/
+		/*printf("%s\n", all_op[controlstats.fs_count]);*/
+
+		/*printf("[FLOWOP] %s\n", all_op[1]);*/
+		/*addMetrics(controlstats.fs_count, line);*/
+
 	}
 	if (flowop->fo_attrs & FLOW_ATTR_READ) {
 		threadflow->tf_stats.fs_rbytes += bytes;
@@ -203,6 +227,16 @@ flowop_endop(threadflow_t *threadflow, flowop_t *flowop, int64_t bytes)
 		controlstats.fs_wbytes += bytes;
 		controlstats.fs_wcount++;
 	}
+
+	/*CLOUDISH CODE*/
+	/*
+	strcpy(flowop->all_latencies[flowop->fo_stats.fs_count].op_name, flowop->fo_name);
+	flowop->all_latencies[flowop->fo_stats.fs_count].thread_id = threadflow->tf_instance;
+	flowop->all_latencies[flowop->fo_stats.fs_count].process_id = threadflow->tf_process->pf_instance;
+	flowop->all_latencies[flowop->fo_stats.fs_count].delay = ll_delay;
+	flowop->all_latencies[flowop->fo_stats.fs_count].timestamp = gethrtime(); */
+
+	/*printf("%d\n", controlstats.fs_count);*/
 
 	if (filebench_shm->lathist_enabled)
 		flowop_populate_distribution(flowop, ll_delay);
