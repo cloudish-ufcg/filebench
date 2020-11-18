@@ -375,8 +375,6 @@ void ipc_init(void)
 	filebench_shm->shm_eventgen_hz = 0;
 	filebench_shm->shm_id = -1;
 
-	int total = 0;
-
 	filebench_shm->shm_filesys_type = LOCAL_FS_PLUG;
 }
 

@@ -28,18 +28,7 @@
 
 #include "filebench.h"
 
-/*
-typedef struct unique_op {
-	char op_name[128];
-    int thread_id;
-    int process_id;
-	unsigned long long delay;
-	unsigned long long timestamp;
-} unique_op; */
-
 typedef struct flowop {
-	/*char all_op_lat[10000][100];*/
-	/*unique_op all_latencies[5000]; */ /*All individual latencies from flowop*/
 	char		fo_name[128];	/* Name */
 	int		fo_instance;	/* Instance number */
 	struct flowop	*fo_next;	/* Next in global list */
@@ -134,7 +123,6 @@ typedef struct flowop_proto {
 	void	(*fl_destruct)();
 } flowop_proto_t;
 
-
 extern struct flowstats controlstats;
 extern pthread_mutex_t controlstats_lock;
 
@@ -158,8 +146,6 @@ flowop_t *flowop_new_composite_define(char *name);
 void flowop_printall(void);
 
 void flowop_init(int ismaster);
-
-extern int myGlobal;
 
 /* Local file system specific */
 void fb_lfs_funcvecinit();
